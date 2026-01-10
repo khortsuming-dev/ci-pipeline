@@ -1,0 +1,57 @@
+name: Python CI Pipeline
+
+# Trigger pipeline on push or pull request to main branch
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      # 1️⃣ Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Python version
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 3️⃣ Install dependencies
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest flake8 black wheel
+
+      # 4️⃣ Run Lint
+      - name: Lint Code
+        run: flake8 .
+
+      # 5️⃣ Check Code Formatting
+      - name: Check Format
+        run: black --check .
+
+      # 6️⃣ Run Tests
+      - name: Run Tests
+        run: pytest
+
+      # 7️⃣ Build Artifact
+      - name: Build Python Package
+        run: python -m build
+
+      # 8️⃣ Upload Artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+
