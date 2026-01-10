@@ -30,3 +30,19 @@ jobs:
       - name: Run tests
         run: pytest
 
+      # ---------------------------
+      #   BUILD ARTIFACT
+      # ---------------------------
+      - name: Build Python Package
+        run: |
+          python -m build
+        # this generates /dist/my-app-0.1.0.tar.gz and .whl
+
+      # ---------------------------
+      #   UPLOAD ARTIFACT
+      # ---------------------------
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package
+          path: dist/*
